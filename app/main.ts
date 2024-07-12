@@ -3,8 +3,12 @@ import {Commands} from "./commands/commands";
 import {Parser} from "./utils/parser";
 import {SimpleTypes} from "./enums/firstByteCmdEnum";
 import {NullBulkStringError} from "./exceptions/NullBulkStringError";
+import { argv } from "node:process";
 
-const port = 6379;
+let port = 6379;
+
+if(argv[3] && !isNaN(parseInt(argv[3])))
+    port = parseInt(argv[3]);
 
 const server: net.Server = net.createServer((connection: net.Socket) => {
     const commands = new Commands(connection);
@@ -24,13 +28,16 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
                     commands.echo(dataDecoded[1]);
                     break;
                 case 'set':
-                    commands.set(dataDecoded[1], dataDecoded[2]);
+                    if(dataDecoded[3]?.toLowerCase() === 'px')
+                        commands.set(dataDecoded[1], dataDecoded[2], parseInt(dataDecoded[4]));
+                    else
+                        commands.set(dataDecoded[1], dataDecoded[2]);
                     break;
                 case 'get':
                     commands.get(dataDecoded[1]);
                     break;
                 default:
-                    this.connection.write(Parser.toSimpleRESP('Command not exist', SimpleTypes.SIMPLE_ERROR));
+                    connection.write(Parser.toSimpleRESP('Command not exist', SimpleTypes.SIMPLE_ERROR));
             }
         } catch (err) {
             if (err instanceof NullBulkStringError) {

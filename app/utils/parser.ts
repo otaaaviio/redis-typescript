@@ -12,19 +12,22 @@ export class Parser {
     }
 
     public static decode(respStr: string): string[] {
-        const decodedCommands = [];
+        const decodedValues = [];
         const respParts = respStr.trim().split('\r\n');
         const match = respStr.match(/\*([0-9]+)/);
-        const commandsCount = match ? parseInt(match[1], 10) : null;
+        const valuesCount = match ? parseInt(match[1], 10) : null;
 
-        for(let i = 1; i <= commandsCount; i++) {
-            const command = respParts[i * 2];
-            if (command) {
-                decodedCommands.push(command.toLowerCase());
+        for(let i = 1; i <= valuesCount; i++) {
+            const value = respParts[i * 2];
+            if (value) {
+                let valueFormatted = value;
+                if(i === 1)
+                    valueFormatted = value.toLowerCase();
+                decodedValues.push(valueFormatted);
             }
         }
 
-        return decodedCommands;
+        return decodedValues;
     }
 
     public static toSimpleRESP(arg: string, firstByte: SimpleTypes): string {

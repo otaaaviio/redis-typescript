@@ -25,7 +25,7 @@ export class Commands {
         );
     }
 
-    public set(key: string, value: string) {
+    public set(key: string, value: string, expiryTime?: number) {
         let res = Parser.toSimpleRESP('OK', SimpleTypes.SIMPLE_STRING);
 
         if (!key || !value) {
@@ -34,6 +34,11 @@ export class Commands {
             if (!value) missingArgs.push('value');
             throw new MissingArgsError(missingArgs)
         }
+
+        if(expiryTime)
+            setTimeout(() => {
+                memStorage.delete(key);
+            }, expiryTime)
 
         memStorage.set(key, value);
         this.connection.write(res);
