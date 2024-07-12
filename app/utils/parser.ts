@@ -35,6 +35,6 @@ export class Parser {
     }
 
     public static toLengthRESP(arg: string, firstByte: LengthSpecifiedTypes): string {
-        return `${firstByte}${arg.length}\r\n${arg}\r\n`;
+        return `${firstByte}${Buffer.byteLength(arg, 'utf8')}\r\n${arg}\r\n`;
     }
 }

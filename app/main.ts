@@ -4,11 +4,20 @@ import {Parser} from "./utils/parser";
 import {SimpleTypes} from "./enums/firstByteCmdEnum";
 import {NullBulkStringError} from "./exceptions/NullBulkStringError";
 import { argv } from "node:process";
+import {InfoServer} from "./types/infoServer";
+import {getRandomReplId} from "./utils/utils";
 
 let port = 6379;
 
 if(argv[3] && !isNaN(parseInt(argv[3])))
     port = parseInt(argv[3]);
+
+const isReplication: boolean = argv.includes('--replicaof');
+const infoServer: InfoServer = {
+    role: isReplication ? 'master' : 'slave',
+    master_replid: getRandomReplId(),
+    master_repl_offset: 0,
+}
 
 const server: net.Server = net.createServer((connection: net.Socket) => {
     const commands = new Commands(connection);
@@ -36,6 +45,9 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
                 case 'get':
                     commands.get(dataDecoded[1]);
                     break;
+                case 'info':
+                    commands.info(dataDecoded[1], infoServer);
+                    break;
                 default:
                     connection.write(Parser.toSimpleRESP('Command not exist', SimpleTypes.SIMPLE_ERROR));
             }
@@ -53,4 +65,4 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
 
 server.listen(port, "127.0.0.1");
 
-console.log(`Server connected in port ${port}`);
+console.log(`Server listening on port: ${port}`);

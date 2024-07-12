@@ -2,6 +2,7 @@ import {Parser} from "../utils/parser";
 import {LengthSpecifiedTypes, SimpleTypes} from "../enums/firstByteCmdEnum";
 import {MissingArgsError} from "../exceptions/MissingArgsError";
 import {NullBulkStringError} from "../exceptions/NullBulkStringError";
+import {InfoServer} from "../types/infoServer";
 
 const memStorage = new Map<string, string>();
 
@@ -51,5 +52,19 @@ export class Commands {
             throw new NullBulkStringError();
 
         this.connection.write(Parser.toLengthRESP(value, LengthSpecifiedTypes.BULK_STRING));
+    }
+
+    public info(server: string, infoServer: InfoServer) {
+        const info = this.createInfoString(infoServer);
+
+        this.connection.write(Parser.toLengthRESP(info, LengthSpecifiedTypes.BULK_STRING))
+    }
+
+    private createInfoString(infoServer: InfoServer): string {
+        let parts = [];
+        for (const [key, value] of Object.entries(infoServer)) {
+            parts.push(`${key}: ${value}`);
+        }
+        return parts.join('\r\n') + '\r\n';
     }
 }
