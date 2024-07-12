@@ -1,5 +1,9 @@
 import {Parser} from "../utils/parser";
 import {LengthSpecifiedTypes, SimpleTypes} from "../enums/firstByteCmdEnum";
+import {MissingArgsError} from "../exceptions/MissingArgsError";
+import {NullBulkStringError} from "../exceptions/NullBulkStringError";
+
+const memStorage = new Map<string, string>();
 
 export class Commands {
     private readonly connection;
@@ -9,16 +13,38 @@ export class Commands {
     }
 
     public echo(arg: string) {
-        const res = typeof arg === 'undefined'
-            ? Parser.toSimpleRESP('Missing args to echo request', SimpleTypes.SIMPLE_ERROR)
-            : Parser.toLengthRESP(arg, LengthSpecifiedTypes.BULK_STRING);
+        if (typeof arg === 'undefined')
+            throw new MissingArgsError(['value']);
 
-        this.connection.write(res);
+        this.connection.write(Parser.toLengthRESP(arg, LengthSpecifiedTypes.BULK_STRING))
     }
 
     public ping() {
         this.connection.write(
             Parser.toSimpleRESP('PONG', SimpleTypes.SIMPLE_STRING)
         );
+    }
+
+    public set(key: string, value: string) {
+        let res = Parser.toSimpleRESP('OK', SimpleTypes.SIMPLE_STRING);
+
+        if (!key || !value) {
+            let missingArgs = [];
+            if (!key) missingArgs.push('key');
+            if (!value) missingArgs.push('value');
+            throw new MissingArgsError(missingArgs)
+        }
+
+        memStorage.set(key, value);
+        this.connection.write(res);
+    }
+
+    public get(key: string) {
+        const value = memStorage.get(key);
+
+        if (!value)
+            throw new NullBulkStringError();
+
+        this.connection.write(Parser.toLengthRESP(value, LengthSpecifiedTypes.BULK_STRING));
     }
 }
