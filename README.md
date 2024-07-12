@@ -16,8 +16,10 @@ This is a redis implementation in TypeScript to [CodeCrafters Challenge](https:/
 
 ## Running the server
 ```bash
-./spawn_redis_server.sh
+./spawn_redis_server.sh --port <PORT> --replicaof "<MASTER_HOST> <MASTER_PORT>"
 ```
+
+obs: args are optional
 
 ## Running commands
 ```
@@ -26,10 +28,14 @@ redis-cli <command> <...args>
 
 ## Current Commands
 
-| Command | Arguments | Description                                     |
-|---------|-----------|-------------------------------------------------|
-| ping    | -         | Responds with "PONG" to check connectivity.     |
-| echo    | message   | Echoes the provided message back to the client. |
+| Command | Arguments     | Description                                     |
+|---------|---------------|-------------------------------------------------|
+| ping    | -             | Responds with "PONG" to check connectivity.     |
+| echo    | message       | Echoes the provided message back to the client. |
+| set     | key<br/>value | Set the string value of a key                   |
+| get     | key           | Get a string from a key                         |
+| info    | server        | Get info about the current server               |
+
 
 ## Author
 - Otávio Gonçalves - otavio18gl@gmail.com
