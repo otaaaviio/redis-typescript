@@ -14,7 +14,7 @@ if(argv[3] && !isNaN(parseInt(argv[3])))
 
 const isReplication: boolean = argv.includes('--replicaof');
 const infoServer: InfoServer = {
-    role: isReplication ? 'master' : 'slave',
+    role: !isReplication ? 'master' : 'slave',
     master_replid: getRandomReplId(),
     master_repl_offset: 0,
 }
