@@ -5,16 +5,13 @@ import {SimpleTypes} from "./enums/firstByteCmdEnum";
 import {NullBulkStringError} from "./exceptions/NullBulkStringError";
 import { argv } from "node:process";
 import {InfoServer} from "./types/infoServer";
-import {getRandomReplId} from "./utils/utils";
+import {getRandomReplId, getServerConfig} from "./utils/utils";
+import {ReplicationServer} from "./servers/replicationServer";
 
-let port = 6379;
+let config = getServerConfig(argv);
 
-if(argv[3] && !isNaN(parseInt(argv[3])))
-    port = parseInt(argv[3]);
-
-const isReplication: boolean = argv.includes('--replicaof');
 const infoServer: InfoServer = {
-    role: !isReplication ? 'master' : 'slave',
+    role: !config.isReplication ? 'master' : 'slave',
     master_replid: getRandomReplId(),
     master_repl_offset: 0,
 }
@@ -63,6 +60,11 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
     });
 });
 
-server.listen(port, "127.0.0.1");
+if (config.isReplication) {
+    const repServer = new ReplicationServer(config);
+    repServer.init();
+}
 
-console.log(`Server listening on port: ${port}`);
+server.listen(config.port, config.host);
+
+console.log(`Server listening on port: ${config.port}`);
