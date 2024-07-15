@@ -3,6 +3,7 @@ import {LengthSpecifiedTypes, SimpleTypes} from "../enums/firstByteCmdEnum";
 import {MissingArgsError} from "../exceptions/MissingArgsError";
 import {NullBulkStringError} from "../exceptions/NullBulkStringError";
 import {InfoServer} from "../types/infoServer";
+import {Socket} from "node:net";
 
 const memStorage = new Map<string, string>();
 
@@ -31,8 +32,10 @@ export class Commands {
 
         if (!key || !value) {
             let missingArgs = [];
-            if (!key) missingArgs.push('key');
-            if (!value) missingArgs.push('value');
+            if (!key)
+                missingArgs.push('key');
+            if (!value)
+                missingArgs.push('value');
             throw new MissingArgsError(missingArgs)
         }
 
@@ -58,6 +61,13 @@ export class Commands {
         const info = this.createInfoString(infoServer);
 
         this.connection.write(Parser.toLengthRESP(info, LengthSpecifiedTypes.BULK_STRING))
+    }
+
+    public replconf(command: string, ...args: string[]) {
+        // console.log(command, args);
+        let res = Parser.toSimpleRESP('OK', SimpleTypes.SIMPLE_STRING);
+
+        this.connection.write(res);
     }
 
     private createInfoString(infoServer: InfoServer): string {

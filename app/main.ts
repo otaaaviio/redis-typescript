@@ -45,6 +45,9 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
                 case 'info':
                     commands.info(dataDecoded[1], infoServer);
                     break;
+                case 'replconf':
+                    commands.replconf(dataDecoded[1], ...dataDecoded.slice(2));
+                    break;
                 default:
                     connection.write(Parser.toSimpleRESP('Command not exist', SimpleTypes.SIMPLE_ERROR));
             }
@@ -56,7 +59,6 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
             }
             console.log(err);
         }
-        connection.end();
     });
 });
 

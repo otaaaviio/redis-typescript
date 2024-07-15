@@ -37,12 +37,4 @@ export class Parser {
     public static toLengthRESP(arg: string, firstByte: LengthSpecifiedTypes): string {
         return `${firstByte}${Buffer.byteLength(arg, 'utf8')}\r\n${arg}\r\n`;
     }
-
-    public static toArrayRESP(messages: string[]) {
-        let respArray = `*${messages.length}\r\n`;
-        messages.forEach(msg => {
-            respArray += `$${Buffer.byteLength(msg, 'utf8')}\r\n${msg}\r\n`;
-        });
-        return respArray;
-    }
 }
