@@ -70,6 +70,15 @@ export class Commands {
         this.connection.write(res);
     }
 
+    public psync(replId: string, replOffset: string, infoServer: InfoServer) {
+        let res = '';
+
+        if(replId === '?' && replOffset === '-1')
+            res = Parser.toSimpleRESP(`FULLRESYNC ${infoServer.master_replid} ${infoServer.master_repl_offset}`, SimpleTypes.SIMPLE_STRING);
+
+        this.connection.write(res);
+    }
+
     private createInfoString(infoServer: InfoServer): string {
         let parts = [];
         for (const [key, value] of Object.entries(infoServer)) {

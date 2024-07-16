@@ -21,14 +21,14 @@ export class ReplicationServer {
                 console.log(`Connected to the master at ${this.config.masterHost}:${this.config.masterPort}`);
             });
 
-        this.masterSocket.on("data", async(data: Buffer) => {
+        this.masterSocket.on("data", (data: Buffer) => {
             const res = JSON.stringify(data.toString());
             console.log(`Response received from master: ${res}`);
 
             if (data.toString() === "+PONG\r\n") {
-                await this.masterSocket.write(Parser.encode(['REPLCONF', 'listening-port', String(this.config.masterPort)]));
-                await this.masterSocket.write(Parser.encode(['REPLCONF', 'capa', 'psync2']));
-                await this.masterSocket.write(Parser.encode(['PSYNC', '?', '-1']));
+                this.masterSocket.write(Parser.encode(['REPLCONF', 'listening-port', String(this.config.masterPort)]));
+                this.masterSocket.write(Parser.encode(['REPLCONF', 'capa', 'psync2']));
+                this.masterSocket.write(Parser.encode(['PSYNC', '?', '-1']));
             }
         });
 

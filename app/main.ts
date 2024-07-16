@@ -48,6 +48,9 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
                 case 'replconf':
                     commands.replconf(dataDecoded[1], ...dataDecoded.slice(2));
                     break;
+                case 'psync':
+                    commands.psync(dataDecoded[1], dataDecoded[2], infoServer);
+                    break;
                 default:
                     connection.write(Parser.toSimpleRESP('Command not exist', SimpleTypes.SIMPLE_ERROR));
             }
